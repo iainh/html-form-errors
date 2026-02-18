@@ -70,7 +70,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "axum-form-example"
+name = "axum-minijinja-example"
 version = "0.1.0"
 dependencies = [
  "axum",

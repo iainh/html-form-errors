@@ -266,13 +266,13 @@ Askama can call Rust methods directly on the struct, so you can use
 
 ## Example
 
-See `examples/axum-form/` for a complete working example with Axum, MiniJinja,
+See `examples/axum-minijinja/` for a complete working example with Axum, MiniJinja,
 and HTMX — a single form that validates a number is 10 or less.
 
 Run it with:
 
 ```sh
-cd examples/axum-form
+cd examples/axum-minijinja
 cargo run
 # Open http://localhost:3000
 ```
