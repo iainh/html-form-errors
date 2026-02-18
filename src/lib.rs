@@ -1,3 +1,7 @@
+#[doc = include_str!("../README.md")]
+#[cfg(doctest)]
+pub struct _ReadmeDocTests;
+
 use std::collections::HashMap;
 
 /// Field-level validation errors for template rendering.

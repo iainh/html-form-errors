@@ -76,7 +76,7 @@ errors.extend(other);
 
 ### From `validator::ValidationErrors`
 
-```rust
+```rust,ignore
 use htmx_form_errors::FormErrors;
 use validator::Validate;
 
@@ -126,7 +126,7 @@ With HTMX, both success and validation failure return **rendered HTML** — the
 handler always returns an HTTP response, not a `Result<_, FormErrors>`.
 `FormErrors` is part of the template context, not a Rust error type:
 
-```rust
+```rust,ignore
 async fn handle_submit(
     State(state): State<AppState>,
     Form(input): Form<MyForm>,
@@ -167,7 +167,7 @@ With the `serde` feature (enabled by default), `FormErrors` serializes as a
 flat `{ "field": ["msg", ...] }` map — ready for MiniJinja, Tera, or any
 serde-based template engine:
 
-```rust
+```rust,ignore
 // MiniJinja
 let ctx = minijinja::context! { errors => &errors, email => &form.email };
 
