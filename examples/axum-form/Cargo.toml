@@ -1,0 +1,13 @@
+[package]
+name = "axum-form-example"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+axum = "0.8"
+htmx-form-errors = { path = "../.." }
+minijinja = { version = "2", features = ["loader"] }
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+validator = { version = "0.20", features = ["derive"] }

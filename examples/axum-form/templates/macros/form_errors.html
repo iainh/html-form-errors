@@ -1,0 +1,46 @@
+{# 
+  Form error macros for MiniJinja / Tera templates.
+  
+  Requires FormErrors to be serialized into the template context as a flat map,
+  e.g. {"email": ["Required", "Invalid"], "name": ["Too short"]}
+  
+  Usage:
+    {% from "macros/form_errors.html" import input_class, first_error, base_errors %}
+#}
+
+{# Input CSS class with conditional is-invalid #}
+{% macro input_class(errors, field, base="form-control") -%}
+{{ base }}{% if errors[field] is defined %} is-invalid{% endif %}
+{%- endmacro %}
+
+{# Select CSS class with conditional is-invalid #}
+{% macro select_class(errors, field, base="form-select") -%}
+{{ base }}{% if errors[field] is defined %} is-invalid{% endif %}
+{%- endmacro %}
+
+{# Render the first error message as Bootstrap invalid-feedback #}
+{% macro first_error(errors, field) -%}
+{% if errors[field] is defined %}
+<div class="invalid-feedback">{{ errors[field][0] }}</div>
+{% endif %}
+{%- endmacro %}
+
+{# Render all error messages for a field #}
+{% macro all_errors(errors, field) -%}
+{% if errors[field] is defined %}
+{% for msg in errors[field] %}
+<div class="invalid-feedback d-block">{{ msg }}</div>
+{% endfor %}
+{% endif %}
+{%- endmacro %}
+
+{# Render base/form-level errors as an alert #}
+{% macro base_errors(errors, field="_base") -%}
+{% if errors[field] is defined %}
+<div class="alert alert-danger">
+{% for msg in errors[field] %}
+  <div>{{ msg }}</div>
+{% endfor %}
+</div>
+{% endif %}
+{%- endmacro %}

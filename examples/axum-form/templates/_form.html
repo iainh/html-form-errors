@@ -1,0 +1,14 @@
+{% from "macros/form_errors.html" import input_class, first_error, base_errors %}
+<form hx-post="/" hx-target="#form-area" hx-swap="innerHTML">
+  {{ base_errors(errors=errors) }}
+
+  <div class="mb-3">
+    <label for="number" class="form-label">Number</label>
+    <input type="number" name="number" id="number"
+           class="{{ input_class(errors=errors, field='number') }}"
+           value="{{ number }}">
+    {{ first_error(errors=errors, field='number') }}
+  </div>
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
