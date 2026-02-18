@@ -1,0 +1,21 @@
+<form hx-post="/" hx-target="#form-area" hx-swap="innerHTML">
+  {% if errors.has_error("_base") %}
+  <div class="alert alert-danger">
+    {% for msg in errors.get("_base").unwrap() %}
+    <div>{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="mb-3">
+    <label for="number" class="form-label">Number</label>
+    <input type="number" name="number" id="number"
+           class="form-control {{ errors.invalid_class("number") }}"
+           value="{{ number }}">
+    {% if errors.has_error("number") %}
+    <div class="invalid-feedback">{{ errors.first("number").unwrap() }}</div>
+    {% endif %}
+  </div>
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
