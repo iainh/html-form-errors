@@ -180,40 +180,50 @@ ctx.insert("errors", &errors);
 Copy `macros/form_errors.html` into your template directory. It provides
 these macros:
 
+#### Field-group macros (recommended)
+
+These render a complete Bootstrap field group (label + input + error feedback)
+in a single call:
+
+| Macro | Purpose |
+|---|---|
+| `input_group(errors, field, label, value="", type="text", base="form-control")` | Full input field with label and error feedback |
+| `select_group(errors, field, label, options, selected="", base="form-select")` | Full select field with label and error feedback |
+| `textarea_group(errors, field, label, value="", rows=3, base="form-control")` | Full textarea with label and error feedback |
+| `base_errors(errors, field="_base")` | Renders form-level errors as a Bootstrap alert |
+
+```jinja
+{% from "macros/form_errors.html" import input_group, base_errors %}
+
+<form hx-post="/signup" hx-target="#signup-form" hx-swap="outerHTML" id="signup-form">
+  {{ base_errors(errors=errors) }}
+  {{ input_group(errors=errors, field='email', label='Email', value=email, type='email') }}
+  {{ input_group(errors=errors, field='name', label='Name', value=name) }}
+  <button type="submit" class="btn btn-primary">Sign Up</button>
+</form>
+```
+
+#### Low-level macros
+
+For custom layouts, the primitive macros are also available:
+
 | Macro | Purpose |
 |---|---|
 | `input_class(errors, field, base="form-control")` | Returns `"form-control is-invalid"` or `"form-control"` |
 | `select_class(errors, field, base="form-select")` | Same, but defaults to `"form-select"` |
 | `first_error(errors, field)` | Renders `<div class="invalid-feedback">` with the first error |
 | `all_errors(errors, field)` | Renders all errors for a field |
-| `base_errors(errors, field="_base")` | Renders form-level errors as a Bootstrap alert |
-
-#### Example template
 
 ```jinja
-{% from "macros/form_errors.html" import input_class, select_class, first_error, base_errors %}
+{% from "macros/form_errors.html" import input_class, first_error, base_errors %}
 
-<form hx-post="/signup" hx-target="#signup-form" hx-swap="outerHTML" id="signup-form">
-  {{ base_errors(errors=errors) }}
-
-  <div class="mb-3">
-    <label for="email" class="form-label">Email</label>
-    <input type="email" name="email" id="email"
-           class="{{ input_class(errors=errors, field='email') }}"
-           value="{{ email | default('') }}">
-    {{ first_error(errors=errors, field='email') }}
-  </div>
-
-  <div class="mb-3">
-    <label for="name" class="form-label">Name</label>
-    <input type="text" name="name" id="name"
-           class="{{ input_class(errors=errors, field='name') }}"
-           value="{{ name | default('') }}">
-    {{ first_error(errors=errors, field='name') }}
-  </div>
-
-  <button type="submit" class="btn btn-primary">Sign Up</button>
-</form>
+<div class="mb-3">
+  <label for="email" class="form-label">Email</label>
+  <input type="email" name="email" id="email"
+         class="{{ input_class(errors=errors, field='email') }}"
+         value="{{ email | default('') }}">
+  {{ first_error(errors=errors, field='email') }}
+</div>
 ```
 
 ### Form setup

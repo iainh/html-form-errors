@@ -44,3 +44,38 @@
 </div>
 {% endif %}
 {%- endmacro %}
+
+{# Full input field group: label + input + error feedback #}
+{% macro input_group(errors, field, label, value="", type="text", base="form-control") -%}
+<div class="mb-3">
+  <label for="{{ field }}" class="form-label">{{ label }}</label>
+  <input type="{{ type }}" name="{{ field }}" id="{{ field }}"
+         class="{{ input_class(errors=errors, field=field, base=base) }}"
+         value="{{ value }}">
+  {{ first_error(errors=errors, field=field) }}
+</div>
+{%- endmacro %}
+
+{# Full select field group: label + select + error feedback #}
+{% macro select_group(errors, field, label, options, selected="", base="form-select") -%}
+<div class="mb-3">
+  <label for="{{ field }}" class="form-label">{{ label }}</label>
+  <select name="{{ field }}" id="{{ field }}"
+          class="{{ select_class(errors=errors, field=field, base=base) }}">
+    {% for opt in options %}
+    <option value="{{ opt.value }}"{% if opt.value == selected %} selected{% endif %}>{{ opt.label }}</option>
+    {% endfor %}
+  </select>
+  {{ first_error(errors=errors, field=field) }}
+</div>
+{%- endmacro %}
+
+{# Full textarea field group: label + textarea + error feedback #}
+{% macro textarea_group(errors, field, label, value="", rows=3, base="form-control") -%}
+<div class="mb-3">
+  <label for="{{ field }}" class="form-label">{{ label }}</label>
+  <textarea name="{{ field }}" id="{{ field }}" rows="{{ rows }}"
+            class="{{ input_class(errors=errors, field=field, base=base) }}">{{ value }}</textarea>
+  {{ first_error(errors=errors, field=field) }}
+</div>
+{%- endmacro %}
