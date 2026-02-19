@@ -103,6 +103,41 @@ impl serde::Serialize for FormErrors {
     }
 }
 
+/// Extension trait that adds a one-liner `form_errors()` method to any
+/// type implementing [`validator::Validate`].
+///
+/// # Example
+///
+/// ```ignore
+/// use htmx_form_errors::ValidateExt;
+/// use validator::Validate;
+///
+/// #[derive(Validate)]
+/// struct MyForm {
+///     #[validate(email(message = "Must be a valid email"))]
+///     email: String,
+/// }
+///
+/// let form = MyForm { email: "bad".into() };
+/// let errors = form.form_errors();
+/// assert!(errors.has_error("email"));
+/// ```
+#[cfg(feature = "validator")]
+pub trait ValidateExt: validator::Validate {
+    /// Validate `self` and return any validation errors as [`FormErrors`].
+    ///
+    /// Returns an empty `FormErrors` when validation passes.
+    fn form_errors(&self) -> FormErrors {
+        match self.validate() {
+            Ok(()) => FormErrors::new(),
+            Err(e) => FormErrors::from(e),
+        }
+    }
+}
+
+#[cfg(feature = "validator")]
+impl<T: validator::Validate> ValidateExt for T {}
+
 #[cfg(feature = "validator")]
 impl From<validator::ValidationErrors> for FormErrors {
     fn from(errors: validator::ValidationErrors) -> Self {

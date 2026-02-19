@@ -4,7 +4,7 @@ use axum::{
     routing::get,
     Form, Router,
 };
-use htmx_form_errors::FormErrors;
+use htmx_form_errors::{FormErrors, ValidateExt};
 use minijinja::{context, Environment};
 use serde::Deserialize;
 use std::sync::Arc;
@@ -46,10 +46,7 @@ async fn handle_submit(
     State(state): State<Arc<AppState>>,
     Form(input): Form<NumberForm>,
 ) -> impl IntoResponse {
-    let errors = match input.validate() {
-        Ok(_) => FormErrors::new(),
-        Err(e) => FormErrors::from(e),
-    };
+    let errors = input.form_errors();
 
     if errors.is_empty() {
         // Success — return a success message that HTMX swaps in

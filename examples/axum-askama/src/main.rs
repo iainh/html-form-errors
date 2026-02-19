@@ -5,7 +5,7 @@ use axum::{
     routing::get,
     Form, Router,
 };
-use htmx_form_errors::FormErrors;
+use htmx_form_errors::{FormErrors, ValidateExt};
 use serde::Deserialize;
 use validator::Validate;
 
@@ -48,10 +48,7 @@ async fn show_form() -> FormPage {
 }
 
 async fn handle_submit(Form(input): Form<NumberForm>) -> impl IntoResponse {
-    let errors = match input.validate() {
-        Ok(_) => FormErrors::new(),
-        Err(e) => FormErrors::from(e),
-    };
+    let errors = input.form_errors();
 
     if errors.is_empty() {
         let html = format!(

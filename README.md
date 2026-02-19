@@ -76,8 +76,11 @@ errors.extend(other);
 
 ### From `validator::ValidationErrors`
 
+The `ValidateExt` trait adds a one-liner `form_errors()` method to any type
+implementing `validator::Validate`:
+
 ```rust,ignore
-use htmx_form_errors::FormErrors;
+use htmx_form_errors::{FormErrors, ValidateExt};
 use validator::Validate;
 
 #[derive(Validate)]
@@ -88,11 +91,8 @@ struct SignupForm {
     name: String,
 }
 
-fn handle_form(form: SignupForm) -> FormErrors {
-    match form.validate() {
-        Ok(_) => FormErrors::new(),
-        Err(e) => FormErrors::from(e),
-    }
+fn handle_form(form: &SignupForm) -> FormErrors {
+    form.form_errors()
 }
 ```
 
@@ -132,10 +132,7 @@ async fn handle_submit(
     Form(input): Form<MyForm>,
 ) -> impl IntoResponse {
     // 1. Validate the input
-    let mut errors = match input.validate() {
-        Ok(_) => FormErrors::new(),
-        Err(e) => FormErrors::from(e),
-    };
+    let mut errors = input.form_errors();
 
     // 2. If validation passed, try the DB operation
     if errors.is_empty() {
