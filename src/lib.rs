@@ -3,6 +3,31 @@
 pub struct _ReadmeDocTests;
 
 use std::collections::HashMap;
+use std::fmt;
+
+/// A pre-escaped HTML string that is safe to render without further escaping.
+///
+/// With the `askama` feature enabled, this type implements
+/// [`askama::filters::HtmlSafe`], so Askama will render it without
+/// double-escaping — no `|safe` filter needed.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SafeHtml(String);
+
+impl SafeHtml {
+    /// Returns the inner HTML string.
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl fmt::Display for SafeHtml {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+#[cfg(feature = "askama")]
+impl askama::filters::HtmlSafe for SafeHtml {}
 
 /// Field-level validation errors for template rendering.
 ///
@@ -114,30 +139,34 @@ impl FormErrors {
     /// Returns the first error for a field wrapped in Bootstrap invalid-feedback
     /// markup, or an empty string if no errors.
     ///
-    /// The error message is HTML-escaped. In Askama, mark the output as safe:
+    /// The error message is HTML-escaped internally. With the `askama` feature,
+    /// the returned [`SafeHtml`] implements `HtmlSafe` so no `|safe` filter is
+    /// needed:
     ///
     /// ```html,ignore
-    /// {{ errors.feedback_html("email")|safe }}
+    /// {{ errors.feedback_html("email") }}
     /// ```
-    pub fn feedback_html(&self, field: &str) -> String {
+    pub fn feedback_html(&self, field: &str) -> SafeHtml {
         match self.first(field) {
-            Some(msg) => format!(
+            Some(msg) => SafeHtml(format!(
                 r#"<div class="invalid-feedback">{}</div>"#,
                 html_escape(msg)
-            ),
-            None => String::new(),
+            )),
+            None => SafeHtml(String::new()),
         }
     }
 
     /// Returns all base-level errors as a Bootstrap alert, or an empty string
     /// if there are none.
     ///
-    /// The error messages are HTML-escaped. In Askama, mark the output as safe:
+    /// The error messages are HTML-escaped internally. With the `askama` feature,
+    /// the returned [`SafeHtml`] implements `HtmlSafe` so no `|safe` filter is
+    /// needed:
     ///
     /// ```html,ignore
-    /// {{ errors.base_errors_html()|safe }}
+    /// {{ errors.base_errors_html() }}
     /// ```
-    pub fn base_errors_html(&self) -> String {
+    pub fn base_errors_html(&self) -> SafeHtml {
         match self.get(Self::BASE) {
             Some(messages) => {
                 let mut html = String::from(r#"<div class="alert alert-danger">"#);
@@ -145,9 +174,9 @@ impl FormErrors {
                     html.push_str(&format!("<div>{}</div>", html_escape(msg)));
                 }
                 html.push_str("</div>");
-                html
+                SafeHtml(html)
             }
-            None => String::new(),
+            None => SafeHtml(String::new()),
         }
     }
 }
@@ -536,7 +565,7 @@ mod tests {
     fn feedback_html_with_error() {
         let errors = FormErrors::new().with_error("email", "Required");
         assert_eq!(
-            errors.feedback_html("email"),
+            errors.feedback_html("email").as_str(),
             r#"<div class="invalid-feedback">Required</div>"#
         );
     }
@@ -544,14 +573,14 @@ mod tests {
     #[test]
     fn feedback_html_without_error() {
         let errors = FormErrors::new();
-        assert_eq!(errors.feedback_html("email"), "");
+        assert_eq!(errors.feedback_html("email").as_str(), "");
     }
 
     #[test]
     fn feedback_html_escapes_html() {
         let errors = FormErrors::new().with_error("email", "<script>alert('xss')</script>");
         assert_eq!(
-            errors.feedback_html("email"),
+            errors.feedback_html("email").as_str(),
             r#"<div class="invalid-feedback">&lt;script&gt;alert(&#x27;xss&#x27;)&lt;/script&gt;</div>"#
         );
     }
@@ -562,7 +591,7 @@ mod tests {
         errors.add_base("Error one");
         errors.add_base("Error two");
         assert_eq!(
-            errors.base_errors_html(),
+            errors.base_errors_html().as_str(),
             r#"<div class="alert alert-danger"><div>Error one</div><div>Error two</div></div>"#
         );
     }
@@ -570,7 +599,7 @@ mod tests {
     #[test]
     fn base_errors_html_without_errors() {
         let errors = FormErrors::new();
-        assert_eq!(errors.base_errors_html(), "");
+        assert_eq!(errors.base_errors_html().as_str(), "");
     }
 
     #[test]

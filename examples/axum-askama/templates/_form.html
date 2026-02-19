@@ -1,5 +1,5 @@
 <form hx-post="/" hx-target="#form-area" hx-swap="innerHTML">
-  {{ errors.base_errors_html()|safe }}
+  {{ errors.base_errors_html() }}
 
   {# Name — standard input #}
   <div class="mb-3">
@@ -7,7 +7,7 @@
     <input type="text" name="name" id="name"
            class="form-control {{ errors.invalid_class("name") }}"
            value="{{ name }}">
-    {{ errors.feedback_html("name")|safe }}
+    {{ errors.feedback_html("name") }}
     <div class="form-text">At least 2 characters.</div>
   </div>
 
@@ -18,7 +18,7 @@
            placeholder="you@example.com"
            value="{{ email }}">
     <label for="email">Email</label>
-    {{ errors.feedback_html("email")|safe }}
+    {{ errors.feedback_html("email") }}
   </div>
   <div class="form-text mt-n2 mb-3">Must be a valid email address.</div>
 
@@ -32,7 +32,7 @@
       <option value="{{ opt.value }}" {% if role == opt.value %}selected{% endif %}>{{ opt.label }}</option>
       {% endfor %}
     </select>
-    {{ errors.feedback_html("role")|safe }}
+    {{ errors.feedback_html("role") }}
     <div class="form-text">Required. Choose the role that best fits.</div>
   </div>
 
@@ -41,7 +41,7 @@
     <label for="bio" class="form-label">Bio</label>
     <textarea name="bio" id="bio" rows="3"
               class="form-control {{ errors.invalid_class("bio") }}">{{ bio }}</textarea>
-    {{ errors.feedback_html("bio")|safe }}
+    {{ errors.feedback_html("bio") }}
     <div class="form-text">Optional. Tell us about yourself.</div>
   </div>
 
@@ -56,7 +56,7 @@
       <label class="form-check-label" for="contact_method_{{ opt.value }}">{{ opt.label }}</label>
     </div>
     {% endfor %}
-    {{ errors.feedback_html("contact_method")|safe }}
+    {{ errors.feedback_html("contact_method") }}
     <div class="form-text">Required. How should we reach you?</div>
   </div>
 
@@ -67,7 +67,7 @@
              class="{{ errors.check_class("agree") }}"
              {% if agree.is_some() %}checked{% endif %}>
       <label class="form-check-label" for="agree">I agree to the terms</label>
-      {{ errors.feedback_html("agree")|safe }}
+      {{ errors.feedback_html("agree") }}
     </div>
     <div class="form-text">You must accept before submitting.</div>
   </div>
@@ -79,7 +79,7 @@
              class="{{ errors.check_class("notifications") }}"
              {% if notifications.is_some() %}checked{% endif %}>
       <label class="form-check-label" for="notifications">Enable notifications</label>
-      {{ errors.feedback_html("notifications")|safe }}
+      {{ errors.feedback_html("notifications") }}
     </div>
     <div class="form-text">Optional. Receive email updates.</div>
   </div>

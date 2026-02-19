@@ -259,25 +259,33 @@ If you prefer not to use the macro file, the equivalent hand-written markup is:
 
 ### Askama templates
 
-Askama can call Rust methods directly on the struct. Use `feedback_html()`
-and `base_errors_html()` to avoid if/unwrap branching:
+Enable the `askama` feature for first-class integration:
+
+```toml
+[dependencies]
+htmx-form-errors = { git = "https://github.com/iainh/htmx-form-errors", features = ["askama"] }
+```
+
+Askama can call Rust methods directly on the struct. `feedback_html()` and
+`base_errors_html()` return [`SafeHtml`], which implements Askama's `HtmlSafe`
+trait — no `|safe` filter needed:
 
 ```html
-{{ errors.base_errors_html()|safe }}
+{{ errors.base_errors_html() }}
 
 <input type="email" name="email"
        class="form-control {{ errors.invalid_class("email") }}"
        value="{{ email }}">
-{{ errors.feedback_html("email")|safe }}
+{{ errors.feedback_html("email") }}
 
 <div class="form-check">
   <input type="checkbox" name="agree" class="{{ errors.check_class("agree") }}">
   <label class="form-check-label">I agree to the terms</label>
-  {{ errors.feedback_html("agree")|safe }}
+  {{ errors.feedback_html("agree") }}
 </div>
 ```
 
-The HTML helpers escape error messages internally, so `|safe` is safe to use.
+The HTML helpers escape error messages internally before wrapping in `SafeHtml`.
 
 ## How It Fits Together
 
