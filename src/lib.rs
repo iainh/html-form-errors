@@ -94,6 +94,61 @@ impl FormErrors {
             ""
         }
     }
+
+    /// Returns the first error for a field wrapped in Bootstrap invalid-feedback
+    /// markup, or an empty string if no errors.
+    ///
+    /// The error message is HTML-escaped. In Askama, mark the output as safe:
+    ///
+    /// ```html,ignore
+    /// {{ errors.feedback_html("email")|safe }}
+    /// ```
+    pub fn feedback_html(&self, field: &str) -> String {
+        match self.first(field) {
+            Some(msg) => format!(
+                r#"<div class="invalid-feedback">{}</div>"#,
+                html_escape(msg)
+            ),
+            None => String::new(),
+        }
+    }
+
+    /// Returns all base-level errors as a Bootstrap alert, or an empty string
+    /// if there are none.
+    ///
+    /// The error messages are HTML-escaped. In Askama, mark the output as safe:
+    ///
+    /// ```html,ignore
+    /// {{ errors.base_errors_html()|safe }}
+    /// ```
+    pub fn base_errors_html(&self) -> String {
+        match self.get(Self::BASE) {
+            Some(messages) => {
+                let mut html = String::from(r#"<div class="alert alert-danger">"#);
+                for msg in messages {
+                    html.push_str(&format!("<div>{}</div>", html_escape(msg)));
+                }
+                html.push_str("</div>");
+                html
+            }
+            None => String::new(),
+        }
+    }
+}
+
+fn html_escape(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '"' => out.push_str("&quot;"),
+            '\'' => out.push_str("&#x27;"),
+            _ => out.push(c),
+        }
+    }
+    out
 }
 
 #[cfg(feature = "serde")]
@@ -452,6 +507,47 @@ mod tests {
         let errors = FormErrors::new().with_error("email", "Bad");
         assert_eq!(errors.invalid_class("email"), "is-invalid");
         assert_eq!(errors.invalid_class("name"), "");
+    }
+
+    #[test]
+    fn feedback_html_with_error() {
+        let errors = FormErrors::new().with_error("email", "Required");
+        assert_eq!(
+            errors.feedback_html("email"),
+            r#"<div class="invalid-feedback">Required</div>"#
+        );
+    }
+
+    #[test]
+    fn feedback_html_without_error() {
+        let errors = FormErrors::new();
+        assert_eq!(errors.feedback_html("email"), "");
+    }
+
+    #[test]
+    fn feedback_html_escapes_html() {
+        let errors = FormErrors::new().with_error("email", "<script>alert('xss')</script>");
+        assert_eq!(
+            errors.feedback_html("email"),
+            r#"<div class="invalid-feedback">&lt;script&gt;alert(&#x27;xss&#x27;)&lt;/script&gt;</div>"#
+        );
+    }
+
+    #[test]
+    fn base_errors_html_with_errors() {
+        let mut errors = FormErrors::new();
+        errors.add_base("Error one");
+        errors.add_base("Error two");
+        assert_eq!(
+            errors.base_errors_html(),
+            r#"<div class="alert alert-danger"><div>Error one</div><div>Error two</div></div>"#
+        );
+    }
+
+    #[test]
+    fn base_errors_html_without_errors() {
+        let errors = FormErrors::new();
+        assert_eq!(errors.base_errors_html(), "");
     }
 
     #[test]

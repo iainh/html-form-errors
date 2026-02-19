@@ -250,16 +250,19 @@ If you prefer not to use the macro file, the equivalent hand-written markup is:
 
 ### Askama templates
 
-Askama can call Rust methods directly on the struct, so you can use
-`invalid_class()` and `first()` without serde:
+Askama can call Rust methods directly on the struct. Use `feedback_html()`
+and `base_errors_html()` to avoid if/unwrap branching:
 
 ```html
+{{ errors.base_errors_html()|safe }}
+
 <input type="email" name="email"
-       class="form-control {{ errors.invalid_class("email") }}">
-{% if errors.has_error("email") %}
-  <div class="invalid-feedback">{{ errors.first("email").unwrap() }}</div>
-{% endif %}
+       class="form-control {{ errors.invalid_class("email") }}"
+       value="{{ email }}">
+{{ errors.feedback_html("email")|safe }}
 ```
+
+The HTML helpers escape error messages internally, so `|safe` is safe to use.
 
 ## How It Fits Together
 
