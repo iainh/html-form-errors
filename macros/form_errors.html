@@ -45,19 +45,20 @@
 {% endif %}
 {%- endmacro %}
 
-{# Full input field group: label + input + error feedback #}
-{% macro input_group(errors, field, label, value="", type="text", base="form-control") -%}
+{# Full input field group: label + input + error feedback + optional help text #}
+{% macro input_group(errors, field, label, value="", type="text", help="", base="form-control") -%}
 <div class="mb-3">
   <label for="{{ field }}" class="form-label">{{ label }}</label>
   <input type="{{ type }}" name="{{ field }}" id="{{ field }}"
          class="{{ input_class(errors=errors, field=field, base=base) }}"
          value="{{ value }}">
   {{ first_error(errors=errors, field=field) }}
+  {% if help %}<div class="form-text">{{ help }}</div>{% endif %}
 </div>
 {%- endmacro %}
 
-{# Full select field group: label + select + error feedback #}
-{% macro select_group(errors, field, label, options, selected="", base="form-select") -%}
+{# Full select field group: label + select + error feedback + optional help text #}
+{% macro select_group(errors, field, label, options, selected="", help="", base="form-select") -%}
 <div class="mb-3">
   <label for="{{ field }}" class="form-label">{{ label }}</label>
   <select name="{{ field }}" id="{{ field }}"
@@ -67,15 +68,106 @@
     {% endfor %}
   </select>
   {{ first_error(errors=errors, field=field) }}
+  {% if help %}<div class="form-text">{{ help }}</div>{% endif %}
 </div>
 {%- endmacro %}
 
-{# Full textarea field group: label + textarea + error feedback #}
-{% macro textarea_group(errors, field, label, value="", rows=3, base="form-control") -%}
+{# Full textarea field group: label + textarea + error feedback + optional help text #}
+{% macro textarea_group(errors, field, label, value="", rows=3, help="", base="form-control") -%}
 <div class="mb-3">
   <label for="{{ field }}" class="form-label">{{ label }}</label>
   <textarea name="{{ field }}" id="{{ field }}" rows="{{ rows }}"
             class="{{ input_class(errors=errors, field=field, base=base) }}">{{ value }}</textarea>
   {{ first_error(errors=errors, field=field) }}
+  {% if help %}<div class="form-text">{{ help }}</div>{% endif %}
 </div>
+{%- endmacro %}
+
+{# Check/radio CSS class with conditional is-invalid #}
+{% macro check_class(errors, field, base="form-check-input") -%}
+{{ base }}{% if errors[field] is defined %} is-invalid{% endif %}
+{%- endmacro %}
+
+{# Checkbox field group: wrapper + checkbox + label + error feedback + optional help text #}
+{% macro checkbox_group(errors, field, label, checked=false, value="1", help="", base="form-check-input") -%}
+<div class="mb-3">
+  <div class="form-check">
+    <input type="checkbox" name="{{ field }}" id="{{ field }}" value="{{ value }}"
+           class="{{ check_class(errors=errors, field=field, base=base) }}"
+           {% if checked %}checked{% endif %}>
+    <label class="form-check-label" for="{{ field }}">{{ label }}</label>
+    {{ first_error(errors=errors, field=field) }}
+  </div>
+  {% if help %}<div class="form-text">{{ help }}</div>{% endif %}
+</div>
+{%- endmacro %}
+
+{# Radio button group: label + set of radio options + error feedback + optional help text #}
+{% macro radio_group(errors, field, label, options, selected="", help="", base="form-check-input") -%}
+<div class="mb-3">
+  <label class="form-label">{{ label }}</label>
+  {% for opt in options %}
+  <div class="form-check">
+    <input type="radio" name="{{ field }}" id="{{ field }}_{{ opt.value }}" value="{{ opt.value }}"
+           class="{{ check_class(errors=errors, field=field, base=base) }}"
+           {% if opt.value == selected %}checked{% endif %}>
+    <label class="form-check-label" for="{{ field }}_{{ opt.value }}">{{ opt.label }}</label>
+  </div>
+  {% endfor %}
+  {{ first_error(errors=errors, field=field) }}
+  {% if help %}<div class="form-text">{{ help }}</div>{% endif %}
+</div>
+{%- endmacro %}
+
+{# Switch (toggle) field group: wrapper + switch input + label + error feedback + optional help text #}
+{% macro switch_group(errors, field, label, checked=false, value="1", help="", base="form-check-input") -%}
+<div class="mb-3">
+  <div class="form-check form-switch">
+    <input type="checkbox" role="switch" name="{{ field }}" id="{{ field }}" value="{{ value }}"
+           class="{{ check_class(errors=errors, field=field, base=base) }}"
+           {% if checked %}checked{% endif %}>
+    <label class="form-check-label" for="{{ field }}">{{ label }}</label>
+    {{ first_error(errors=errors, field=field) }}
+  </div>
+  {% if help %}<div class="form-text">{{ help }}</div>{% endif %}
+</div>
+{%- endmacro %}
+
+{# Floating label input group: input before label, requires placeholder + optional help text #}
+{% macro floating_input_group(errors, field, label, value="", type="text", help="", base="form-control") -%}
+<div class="form-floating mb-3">
+  <input type="{{ type }}" name="{{ field }}" id="{{ field }}"
+         class="{{ input_class(errors=errors, field=field, base=base) }}"
+         placeholder="{{ label }}" value="{{ value }}">
+  <label for="{{ field }}">{{ label }}</label>
+  {{ first_error(errors=errors, field=field) }}
+</div>
+{% if help %}<div class="form-text mt-n2 mb-3">{{ help }}</div>{% endif %}
+{%- endmacro %}
+
+{# Floating label select group: select before label + optional help text #}
+{% macro floating_select_group(errors, field, label, options, selected="", help="", base="form-select") -%}
+<div class="form-floating mb-3">
+  <select name="{{ field }}" id="{{ field }}"
+          class="{{ select_class(errors=errors, field=field, base=base) }}">
+    {% for opt in options %}
+    <option value="{{ opt.value }}"{% if opt.value == selected %} selected{% endif %}>{{ opt.label }}</option>
+    {% endfor %}
+  </select>
+  <label for="{{ field }}">{{ label }}</label>
+  {{ first_error(errors=errors, field=field) }}
+</div>
+{% if help %}<div class="form-text mt-n2 mb-3">{{ help }}</div>{% endif %}
+{%- endmacro %}
+
+{# Floating label textarea group: textarea before label, uses style height instead of rows + optional help text #}
+{% macro floating_textarea_group(errors, field, label, value="", height="100px", help="", base="form-control") -%}
+<div class="form-floating mb-3">
+  <textarea name="{{ field }}" id="{{ field }}"
+            class="{{ input_class(errors=errors, field=field, base=base) }}"
+            placeholder="{{ label }}" style="height: {{ height }}">{{ value }}</textarea>
+  <label for="{{ field }}">{{ label }}</label>
+  {{ first_error(errors=errors, field=field) }}
+</div>
+{% if help %}<div class="form-text mt-n2 mb-3">{{ help }}</div>{% endif %}
 {%- endmacro %}

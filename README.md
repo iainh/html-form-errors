@@ -190,15 +190,23 @@ in a single call:
 | `input_group(errors, field, label, value="", type="text", base="form-control")` | Full input field with label and error feedback |
 | `select_group(errors, field, label, options, selected="", base="form-select")` | Full select field with label and error feedback |
 | `textarea_group(errors, field, label, value="", rows=3, base="form-control")` | Full textarea with label and error feedback |
+| `checkbox_group(errors, field, label, checked=false, value="1")` | Checkbox with label and error feedback |
+| `radio_group(errors, field, label, options, selected="")` | Radio button group with label and error feedback |
+| `switch_group(errors, field, label, checked=false, value="1")` | Toggle switch with label and error feedback |
+| `floating_input_group(errors, field, label, value="", type="text")` | Floating-label input field |
+| `floating_select_group(errors, field, label, options, selected="")` | Floating-label select field |
+| `floating_textarea_group(errors, field, label, value="", height="100px")` | Floating-label textarea |
 | `base_errors(errors, field="_base")` | Renders form-level errors as a Bootstrap alert |
 
 ```jinja
-{% from "macros/form_errors.html" import input_group, base_errors %}
+{% from "macros/form_errors.html" import input_group, checkbox_group, radio_group, floating_input_group, base_errors %}
 
 <form hx-post="/signup" hx-target="#signup-form" hx-swap="outerHTML" id="signup-form">
   {{ base_errors(errors=errors) }}
   {{ input_group(errors=errors, field='email', label='Email', value=email, type='email') }}
   {{ input_group(errors=errors, field='name', label='Name', value=name) }}
+  {{ radio_group(errors=errors, field='role', label='Role', options=roles, selected=role) }}
+  {{ checkbox_group(errors=errors, field='agree', label='I agree to the terms', checked=agree) }}
   <button type="submit" class="btn btn-primary">Sign Up</button>
 </form>
 ```
@@ -211,6 +219,7 @@ For custom layouts, the primitive macros are also available:
 |---|---|
 | `input_class(errors, field, base="form-control")` | Returns `"form-control is-invalid"` or `"form-control"` |
 | `select_class(errors, field, base="form-select")` | Same, but defaults to `"form-select"` |
+| `check_class(errors, field, base="form-check-input")` | Same, but defaults to `"form-check-input"` (for checkboxes/radios/switches) |
 | `first_error(errors, field)` | Renders `<div class="invalid-feedback">` with the first error |
 | `all_errors(errors, field)` | Renders all errors for a field |
 
@@ -260,6 +269,12 @@ and `base_errors_html()` to avoid if/unwrap branching:
        class="form-control {{ errors.invalid_class("email") }}"
        value="{{ email }}">
 {{ errors.feedback_html("email")|safe }}
+
+<div class="form-check">
+  <input type="checkbox" name="agree" class="{{ errors.check_class("agree") }}">
+  <label class="form-check-label">I agree to the terms</label>
+  {{ errors.feedback_html("agree")|safe }}
+</div>
 ```
 
 The HTML helpers escape error messages internally, so `|safe` is safe to use.

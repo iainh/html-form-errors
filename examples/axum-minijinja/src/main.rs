@@ -6,14 +6,48 @@ use axum::{
 };
 use htmx_form_errors::{FormErrors, ValidateExt};
 use minijinja::{context, Environment};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use validator::Validate;
 
 #[derive(Debug, Deserialize, Validate)]
-struct NumberForm {
-    #[validate(range(max = 10, message = "Number must be 10 or less"))]
-    number: i64,
+struct ContactForm {
+    #[validate(length(min = 2, message = "Name must be at least 2 characters"))]
+    name: String,
+    #[validate(email(message = "Must be a valid email"))]
+    email: String,
+    #[validate(length(min = 1, message = "Please select a role"))]
+    role: String,
+    bio: String,
+    #[serde(default)]
+    agree: Option<String>,
+    #[validate(length(min = 1, message = "Please select a contact method"))]
+    contact_method: String,
+    #[serde(default)]
+    notifications: Option<String>,
+}
+
+#[derive(Serialize)]
+struct SelectOption {
+    value: String,
+    label: String,
+}
+
+fn role_options() -> Vec<SelectOption> {
+    vec![
+        SelectOption { value: "".into(), label: "Select a role…".into() },
+        SelectOption { value: "admin".into(), label: "Admin".into() },
+        SelectOption { value: "editor".into(), label: "Editor".into() },
+        SelectOption { value: "viewer".into(), label: "Viewer".into() },
+    ]
+}
+
+fn contact_method_options() -> Vec<SelectOption> {
+    vec![
+        SelectOption { value: "email".into(), label: "Email".into() },
+        SelectOption { value: "phone".into(), label: "Phone".into() },
+        SelectOption { value: "sms".into(), label: "SMS".into() },
+    ]
 }
 
 struct AppState {
@@ -39,47 +73,73 @@ async fn main() {
 }
 
 async fn show_form(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    render_page(&state, &FormErrors::new(), "")
+    render_page(&state, &FormErrors::new(), &ContactForm {
+        name: String::new(),
+        email: String::new(),
+        role: String::new(),
+        bio: String::new(),
+        agree: None,
+        contact_method: String::new(),
+        notifications: None,
+    })
 }
 
 async fn handle_submit(
     State(state): State<Arc<AppState>>,
-    Form(input): Form<NumberForm>,
+    Form(input): Form<ContactForm>,
 ) -> impl IntoResponse {
-    let errors = input.form_errors();
+    let mut errors = input.form_errors();
+
+    if input.agree.is_none() {
+        errors.add("agree", "You must agree to the terms");
+    }
 
     if errors.is_empty() {
-        // Success — return a success message that HTMX swaps in
         let html = format!(
             r#"<div class="alert alert-success" role="alert">
-                 ✅ Success! You submitted: {}
+                 ✅ Success! Contact form submitted for {} ({})
                </div>"#,
-            input.number
+            input.name, input.email
         );
         return Html(html).into_response();
     }
 
-    // Re-render just the form partial with errors
-    render_partial(&state, &errors, &input.number.to_string()).into_response()
+    render_partial(&state, &errors, &input).into_response()
 }
 
-fn render_page(state: &AppState, errors: &FormErrors, number: &str) -> Html<String> {
+fn render_page(state: &AppState, errors: &FormErrors, input: &ContactForm) -> Html<String> {
     let tmpl = state.env.get_template("form.html").unwrap();
     let html = tmpl
         .render(context! {
             errors => errors,
-            number => number,
+            name => input.name,
+            email => input.email,
+            role => input.role,
+            bio => input.bio,
+            agree => input.agree,
+            contact_method => input.contact_method,
+            notifications => input.notifications,
+            role_options => role_options(),
+            contact_method_options => contact_method_options(),
         })
         .unwrap();
     Html(html)
 }
 
-fn render_partial(state: &AppState, errors: &FormErrors, number: &str) -> Html<String> {
+fn render_partial(state: &AppState, errors: &FormErrors, input: &ContactForm) -> Html<String> {
     let tmpl = state.env.get_template("_form.html").unwrap();
     let html = tmpl
         .render(context! {
             errors => errors,
-            number => number,
+            name => input.name,
+            email => input.email,
+            role => input.role,
+            bio => input.bio,
+            agree => input.agree,
+            contact_method => input.contact_method,
+            notifications => input.notifications,
+            role_options => role_options(),
+            contact_method_options => contact_method_options(),
         })
         .unwrap();
     Html(html)

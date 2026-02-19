@@ -95,6 +95,22 @@ impl FormErrors {
         }
     }
 
+    /// Returns `"form-check-input is-invalid"` if the field has errors,
+    /// otherwise `"form-check-input"`.
+    ///
+    /// Useful in Askama templates for checkboxes, radios, and switches:
+    ///
+    /// ```html,ignore
+    /// <input type="checkbox" class="{{ errors.check_class("agree") }}">
+    /// ```
+    pub fn check_class(&self, field: &str) -> &'static str {
+        if self.has_error(field) {
+            "form-check-input is-invalid"
+        } else {
+            "form-check-input"
+        }
+    }
+
     /// Returns the first error for a field wrapped in Bootstrap invalid-feedback
     /// markup, or an empty string if no errors.
     ///
@@ -507,6 +523,13 @@ mod tests {
         let errors = FormErrors::new().with_error("email", "Bad");
         assert_eq!(errors.invalid_class("email"), "is-invalid");
         assert_eq!(errors.invalid_class("name"), "");
+    }
+
+    #[test]
+    fn check_class() {
+        let errors = FormErrors::new().with_error("agree", "You must agree");
+        assert_eq!(errors.check_class("agree"), "form-check-input is-invalid");
+        assert_eq!(errors.check_class("other"), "form-check-input");
     }
 
     #[test]

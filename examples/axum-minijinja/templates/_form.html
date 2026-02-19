@@ -1,6 +1,12 @@
-{% from "macros/form_errors.html" import input_group, base_errors %}
+{% from "macros/form_errors.html" import base_errors, input_group, floating_input_group, select_group, textarea_group, radio_group, checkbox_group, switch_group %}
 <form hx-post="/" hx-target="#form-area" hx-swap="innerHTML">
   {{ base_errors(errors=errors) }}
-  {{ input_group(errors=errors, field='number', label='Number', value=number, type='number') }}
+  {{ input_group(errors=errors, field='name', label='Name', value=name, help='At least 2 characters.') }}
+  {{ floating_input_group(errors=errors, field='email', label='Email', value=email, type='email', help='Must be a valid email address.') }}
+  {{ select_group(errors=errors, field='role', label='Role', options=role_options, selected=role, help='Required. Choose the role that best fits.') }}
+  {{ textarea_group(errors=errors, field='bio', label='Bio', value=bio, help='Optional. Tell us about yourself.') }}
+  {{ radio_group(errors=errors, field='contact_method', label='Preferred Contact Method', options=contact_method_options, selected=contact_method, help='Required. How should we reach you?') }}
+  {{ checkbox_group(errors=errors, field='agree', label='I agree to the terms', checked=agree, help='You must accept before submitting.') }}
+  {{ switch_group(errors=errors, field='notifications', label='Enable notifications', checked=notifications, help='Optional. Receive email updates.') }}
   <button type="submit" class="btn btn-primary">Submit</button>
 </form>

@@ -1,12 +1,87 @@
 <form hx-post="/" hx-target="#form-area" hx-swap="innerHTML">
   {{ errors.base_errors_html()|safe }}
 
+  {# Name — standard input #}
   <div class="mb-3">
-    <label for="number" class="form-label">Number</label>
-    <input type="number" name="number" id="number"
-           class="form-control {{ errors.invalid_class("number") }}"
-           value="{{ number }}">
-    {{ errors.feedback_html("number")|safe }}
+    <label for="name" class="form-label">Name</label>
+    <input type="text" name="name" id="name"
+           class="form-control {{ errors.invalid_class("name") }}"
+           value="{{ name }}">
+    {{ errors.feedback_html("name")|safe }}
+    <div class="form-text">At least 2 characters.</div>
+  </div>
+
+  {# Email — floating label #}
+  <div class="form-floating mb-3">
+    <input type="email" name="email" id="email"
+           class="form-control {{ errors.invalid_class("email") }}"
+           placeholder="you@example.com"
+           value="{{ email }}">
+    <label for="email">Email</label>
+    {{ errors.feedback_html("email")|safe }}
+  </div>
+  <div class="form-text mt-n2 mb-3">Must be a valid email address.</div>
+
+  {# Role — select #}
+  <div class="mb-3">
+    <label for="role" class="form-label">Role</label>
+    <select name="role" id="role"
+            class="form-select {{ errors.invalid_class("role") }}">
+      <option value="">— Select a role —</option>
+      {% for opt in role_options %}
+      <option value="{{ opt.value }}" {% if role == opt.value %}selected{% endif %}>{{ opt.label }}</option>
+      {% endfor %}
+    </select>
+    {{ errors.feedback_html("role")|safe }}
+    <div class="form-text">Required. Choose the role that best fits.</div>
+  </div>
+
+  {# Bio — textarea (optional, no validation) #}
+  <div class="mb-3">
+    <label for="bio" class="form-label">Bio</label>
+    <textarea name="bio" id="bio" rows="3"
+              class="form-control {{ errors.invalid_class("bio") }}">{{ bio }}</textarea>
+    {{ errors.feedback_html("bio")|safe }}
+    <div class="form-text">Optional. Tell us about yourself.</div>
+  </div>
+
+  {# Contact method — radio group #}
+  <div class="mb-3">
+    <label class="form-label d-block">Preferred contact method</label>
+    {% for opt in contact_method_options %}
+    <div class="form-check">
+      <input type="radio" name="contact_method" id="contact_method_{{ opt.value }}"
+             class="{{ errors.check_class("contact_method") }}"
+             value="{{ opt.value }}" {% if contact_method == opt.value %}checked{% endif %}>
+      <label class="form-check-label" for="contact_method_{{ opt.value }}">{{ opt.label }}</label>
+    </div>
+    {% endfor %}
+    {{ errors.feedback_html("contact_method")|safe }}
+    <div class="form-text">Required. How should we reach you?</div>
+  </div>
+
+  {# Agree — checkbox #}
+  <div class="mb-3">
+    <div class="form-check">
+      <input type="checkbox" name="agree" id="agree" value="yes"
+             class="{{ errors.check_class("agree") }}"
+             {% if agree.is_some() %}checked{% endif %}>
+      <label class="form-check-label" for="agree">I agree to the terms</label>
+      {{ errors.feedback_html("agree")|safe }}
+    </div>
+    <div class="form-text">You must accept before submitting.</div>
+  </div>
+
+  {# Notifications — switch (optional, no validation) #}
+  <div class="mb-3">
+    <div class="form-check form-switch">
+      <input type="checkbox" name="notifications" id="notifications" value="yes"
+             class="{{ errors.check_class("notifications") }}"
+             {% if notifications.is_some() %}checked{% endif %}>
+      <label class="form-check-label" for="notifications">Enable notifications</label>
+      {{ errors.feedback_html("notifications")|safe }}
+    </div>
+    <div class="form-text">Optional. Receive email updates.</div>
   </div>
 
   <button type="submit" class="btn btn-primary">Submit</button>
