@@ -19,9 +19,9 @@ checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 
 [[package]]
 name = "askama"
-version = "0.15.4"
+version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08e1676b346cadfec169374f949d7490fd80a24193d37d2afce0c047cf695e57"
+checksum = "6024d73179f43f15ccd2b881bfea6fee7f3a46ec53f33b52210dea749ebebaa4"
 dependencies = [
  "itoa",
 ]
@@ -267,7 +267,7 @@ dependencies = [
 
 [[package]]
 name = "htmx-form-errors"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "askama",
  "serde",

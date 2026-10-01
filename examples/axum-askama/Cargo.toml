@@ -5,8 +5,8 @@ edition = "2021"
 publish = false
 
 [dependencies]
-askama = "0.15"
-askama_web = { version = "0.15", features = ["axum-0.8"] }
+askama = "0.16"
+askama_web = { version = "0.16", features = ["axum-0.8"] }
 axum = "0.8"
 htmx-form-errors = { path = "../..", features = ["askama"] }
 serde = { version = "1", features = ["derive"] }
